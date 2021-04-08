@@ -1,15 +1,38 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Couchbase;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
-namespace repro
+namespace Couchbase.Example
 {
-    class Program
+    class ContainerExample
     {
+
         static async Task Main(string[] args)
         {
 
-            var cluster = await Cluster.ConnectAsync("couchbase://localhost", "username", "password");
+            // .NET 5 logging, added with help from https://docs.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter
+            // unfortunately, can't log from static without some machinations
+            IServiceCollection serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging(builder => builder
+                    .AddFilter(level => level >= LogLevel.Trace)
+            );
+            using ILoggerFactory loggerFactory =
+                LoggerFactory.Create(builder =>
+                    builder.AddSimpleConsole(options =>
+                    {
+                        options.IncludeScopes = true;
+                        options.SingleLine = true;
+                        options.TimestampFormat = "hh:mm:ss ";
+                    }));
+
+            var config = new ClusterOptions()
+            { 
+                UserName = "username",
+                Password = "password",
+            }.WithLogging(loggerFactory);
+
+            var cluster = await Cluster.ConnectAsync("couchbase://localhost", config);
 
             var bucket = await cluster.BucketAsync("travel-sample");
             var collection = bucket.DefaultCollection();

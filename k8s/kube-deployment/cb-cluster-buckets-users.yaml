@@ -1,0 +1,90 @@
+apiVersion: couchbase.com/v2
+kind: CouchbaseCluster
+metadata:
+  name: cb-appdemo
+spec:
+  image: couchbase/server:6.6.0
+  cluster: 
+    autoCompaction:
+      databaseFragmentationThreshold:
+        percent: 99
+      viewFragmentationThreshold:
+        percent: 99
+      parallelCompaction: false
+      timeWindow:
+        start: 08:00
+        end: 20:00
+        abortCompactionOutsideWindow: true
+  security:
+    adminSecret: cb-appdemo-admin-auth
+    rbac:
+      managed: true
+      selector:
+        matchLabels:
+          cluster: appdemo-cluster
+  # networking:
+  #   exposeAdminConsole: true
+  #   adminConsoleServices:
+  #     - data
+  #   exposedFeatures:
+  #     - xdcr
+  #     - client
+  #   exposedFeatureServiceType: NodePort
+  #   adminConsoleServiceType: NodePort
+  buckets:
+    managed: true
+  servers:
+    - size: 3
+      name: some_services
+      services:
+        - data
+        - index
+        - query
+        - search
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseBucket
+metadata:
+  name: appbucket
+spec:
+  compressionMode: passive
+  conflictResolution: seqno
+  evictionPolicy: valueOnly
+  ioPriority: high
+  memoryQuota: 100Mi
+  replicas: 1
+  enableFlush: true
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseUser
+metadata:
+  name: appdemo
+  labels:
+    cluster: appdemo-cluster
+spec:
+  fullName: "Appdemo Example"
+  authDomain: local
+  authSecret: appdemo-secret-user
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseGroup
+metadata:
+  name: appdemo-group
+  labels:
+    cluster: appdemo-cluster
+spec:
+  roles:
+    - name: bucket_full_access
+      bucket: appbucket
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseRoleBinding
+metadata:
+  name: appdemo-role-binding
+spec:
+  subjects:
+    - kind: CouchbaseUser
+      name: appdemo
+  roleRef:
+    kind: CouchbaseGroup
+    name: appdemo-group

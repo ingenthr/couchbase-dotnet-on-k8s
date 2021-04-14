@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using DnsClient;
+using DnsClient.Protocol;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -28,13 +30,17 @@ namespace Couchbase.Example
 
             var config = new ClusterOptions()
             { 
-                UserName = "username",
-                Password = "password",
+                UserName = "appdemo",
+                Password = "letmein",
             }.WithLogging(loggerFactory);
 
-            var cluster = await Cluster.ConnectAsync("couchbase://localhost", config);
+            SearchByString("cb-appdemo.default.svc");
+            SearchByString("cb-appdemo.default.svc.cluster.local.");
 
-            var bucket = await cluster.BucketAsync("travel-sample");
+
+            var cluster = await Cluster.ConnectAsync("couchbase://cb-appdemo.default.svc.cluster.local.", config);
+
+            var bucket = await cluster.BucketAsync("appbucket");
             var collection = bucket.DefaultCollection();
 
 
@@ -46,6 +52,31 @@ namespace Couchbase.Example
             await foreach (var row in queryResult) {
                 Console.WriteLine(row);
             }
+
+
+
+
         }
+
+        static void SearchByString(String args) {
+
+            Console.WriteLine($"Searching for {args}…");
+
+            // testing dns srv lookup directly
+            // DnsClient.Logging.LoggerFactory = loggerFactory;
+            ILookupClient lookupClient = new LookupClient();
+
+            var results = lookupClient.Query(args, QueryType.SRV);
+
+            foreach (var nameserver in  lookupClient.Settings.NameServers) {
+                Console.WriteLine($"DNS client has a nameserver {nameserver}");
+            }
+
+            foreach (var result in results.Answers) {
+                Console.WriteLine($"dns result: {result.ToString()}");
+            }
+
+        }
+
     }
 }

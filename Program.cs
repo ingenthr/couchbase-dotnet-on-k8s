@@ -28,7 +28,7 @@ namespace Couchbase.Example
                         options.TimestampFormat = "hh:mm:ss ";
                     }));
 
-            Console.WriteLine("Starting version 0.11");
+            Console.WriteLine("Starting version 0.12");
 
             var config = new ClusterOptions()
             { 
@@ -55,23 +55,24 @@ namespace Couchbase.Example
             //     Console.WriteLine(row);
             // }
 
-            try {
+
             for (var i = 0; i<1000; i++) {
                     Console.WriteLine('+');
-                    await collection.UpsertAsync("foo" + i, new {Name = "bar" + i}).ConfigureAwait(false);
+                    await collection.UpsertAsync("foo" + i, new {Name = "bar" + i}).ConfigureAwait(false);  // probably don't need configure await
                 }
 
-                while (true) {
-                    Console.WriteLine();
-                    for (var i = 0; i<1000; i++) {
+            while (true) {
+                for (var i = 0; i<1000; i++) {
+                    try {
                         var result = await collection.GetAsync("foo" +i).ConfigureAwait(false);
                         Console.WriteLine(".");
                         await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                     }
-
+                    catch (Exception e) {
+                        Console.WriteLine("Failed during upsert: "  + e.Message);
+                    }
                 }
-            } catch (Exception e) {
-                Console.WriteLine(e);
+
             }
 
 

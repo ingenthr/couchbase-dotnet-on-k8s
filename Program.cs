@@ -28,14 +28,16 @@ namespace Couchbase.Example
                         options.TimestampFormat = "hh:mm:ss ";
                     }));
 
+            Console.WriteLine("Starting version 0.11");
+
             var config = new ClusterOptions()
             { 
                 UserName = "appdemo",
                 Password = "letmein",
             }.WithLogging(loggerFactory);
 
-            SearchByString("cb-appdemo.default.svc");
-            SearchByString("cb-appdemo.default.svc.cluster.local.");
+            // SearchByString("cb-appdemo.default.svc");
+            // SearchByString("cb-appdemo.default.svc.cluster.local.");
 
 
             var cluster = await Cluster.ConnectAsync("couchbase://cb-appdemo.default.svc.cluster.local.", config);
@@ -48,10 +50,30 @@ namespace Couchbase.Example
             // var getResult = await collection.GetAsync("my-document-key");
             // Console.WriteLine(getResult.ContentAs<dynamic>());
 
-            var queryResult = await cluster.QueryAsync<dynamic>("select \"Hello World\" as greeting");
-            await foreach (var row in queryResult) {
-                Console.WriteLine(row);
+            // var queryResult = await cluster.QueryAsync<dynamic>("select \"Hello World\" as greeting");
+            // await foreach (var row in queryResult) {
+            //     Console.WriteLine(row);
+            // }
+
+            try {
+            for (var i = 0; i<1000; i++) {
+                    Console.WriteLine('+');
+                    await collection.UpsertAsync("foo" + i, new {Name = "bar" + i}).ConfigureAwait(false);
+                }
+
+                while (true) {
+                    Console.WriteLine();
+                    for (var i = 0; i<1000; i++) {
+                        var result = await collection.GetAsync("foo" +i).ConfigureAwait(false);
+                        Console.WriteLine(".");
+                        await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+                    }
+
+                }
+            } catch (Exception e) {
+                Console.WriteLine(e);
             }
+
 
 
 
@@ -67,11 +89,11 @@ namespace Couchbase.Example
             ILookupClient lookupClient = new LookupClient();
 
             var results = lookupClient.Query(args, QueryType.SRV);
-
+            
             foreach (var nameserver in  lookupClient.Settings.NameServers) {
                 Console.WriteLine($"DNS client has a nameserver {nameserver}");
             }
-
+            
             foreach (var result in results.Answers) {
                 Console.WriteLine($"dns result: {result.ToString()}");
             }

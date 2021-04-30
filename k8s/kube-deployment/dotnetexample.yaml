@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: cbdotnetexample
-          image: dotnetappdemo:0.4
+          image: dotnetappdemo:0.11
           # volumeMounts:
           #   - name: couchbase-user
           #     mountPath: "/deployments/txnexample/creds"

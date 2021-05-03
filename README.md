@@ -9,7 +9,7 @@ Steps
 1. Get KIND, Kubernetes in Docker
 2. Set up a K8S cluster.  I used 1.20.  From the k8s directory in this repo, `kind create cluster --config kind-config.yaml --name appdemo`
 3. Deploy Couchbase Operator/DAC.  From the k8s/kube-deployment directory… `kubectl apply -f couchbase-crd.yaml` then the same for the secrets, then the same for the `cb-operator-dac-deployment.yaml` 
-4. Deploy Couchbase Server.  `kubectl apply -f cbcluster-buckets-users.yaml`
+4. Deploy Couchbase Server.  `kubectl apply -f cb-cluster-buckets-users.yaml`
 5. Build the .NET app from the dockerfile and push it to KIND.  From the root…  `docker build -t dotnetappdemo:0.4 .` and `kind load --name appdemo docker-image dotnetappdemo:0.4`
 6. Deploy the app and look at the log output: `kubectl apply -f dotnetexample.yaml` and `kubectl logs -f service/dotnetexample`
 

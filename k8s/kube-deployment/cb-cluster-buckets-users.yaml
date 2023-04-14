@@ -3,7 +3,7 @@ kind: CouchbaseCluster
 metadata:
   name: cb-appdemo
 spec:
-  image: couchbase/server:6.6.0
+  image: ghcr.io/cb-vanilla/server:7.2.0-5298
   cluster: 
     autoCompaction:
       databaseFragmentationThreshold:
@@ -22,7 +22,10 @@ spec:
       selector:
         matchLabels:
           cluster: appdemo-cluster
-  # networking:
+  networking:
+    endpointProxy:
+      enabled: True
+      image: ghcr.io/cb-vanilla/stellar-gateway:latest
   #   exposeAdminConsole: true
   #   adminConsoleServices:
   #     - data
@@ -41,6 +44,10 @@ spec:
         - index
         - query
         - search
+      pod:
+        spec:
+            imagePullSecrets:
+            - name: ghcr-login-secret
 ---
 apiVersion: couchbase.com/v2
 kind: CouchbaseBucket

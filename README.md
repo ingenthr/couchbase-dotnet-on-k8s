@@ -11,7 +11,7 @@ Steps
 3. Create the secret for appdemo `kubectl apply -f appdemo-secret.yaml` from the k8s/kube-deployment directory
 4. Set up a K8S cluster.  I used 1.25, specified from the config.  From the k8s directory in this repo, `kind create cluster --config kind-config.yaml --name appdemo`.  This will automatically put it into your kubectl context which you can verify with `kubectl config current-context`.
 5. Deploy Couchbase Operator/DAC.  From the k8s/kube-deployment directory… `kubectl apply -f couchbase-crd.yaml` then the same for the secrets, then the same for the `cb-operator-dac-deployment.yaml`
-6. Deploy Couchbase Server: `kubectl apply -f cbcluster-buckets-users.yaml`.  Wait a while.
+6. Deploy Couchbase Server: `kubectl apply -f cb-cluster-buckets-users.yaml`.  Wait a while.
 
 You can check for status with `kubectl get pods` and you'll eventually see something like this with everything "READY":
 ```
@@ -49,7 +49,7 @@ Then invoke with:
 
 Creating a Secret to get Containers
 -----------------------------------
-Create a personal access token with read:packages scope at https://github.com/settings/tokens/new, then
+Create a 'classic' personal access token with read:packages scope at https://github.com/settings/tokens/new, then
 
 `kubectl create secret docker-registry ghcr-login-secret --docker-server=https://ghcr.io --docker-username=$YOUR_GITHUB_USERNAME --docker-password=$YOUR_GITHUB_TOKEN --docker-email=$YOUR_EMAIL`
 

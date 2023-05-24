@@ -3,7 +3,7 @@ kind: CouchbaseCluster
 metadata:
   name: cb-appdemo
 spec:
-  image: ghcr.io/cb-vanilla/server:7.2.0-5298
+  image: ghcr.io/cb-rhcc/server:7.2.0-5298
   cluster: 
     autoCompaction:
       databaseFragmentationThreshold:
@@ -25,7 +25,12 @@ spec:
   networking:
     endpointProxy:
       enabled: True
-      image: ghcr.io/cb-vanilla/stellar-gateway:latest
+      image: ghcr.io/cb-rhcc/cloud-native-gateway:latest
+    tls:
+      rootCAs:
+      - couchbase-server-ca
+      secretSource:
+        serverSecretName: couchbase-server-tls
   #   exposeAdminConsole: true
   #   adminConsoleServices:
   #     - data

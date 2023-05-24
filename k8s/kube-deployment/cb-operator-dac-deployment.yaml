@@ -104,7 +104,7 @@ spec:
         - -validate-storage-classes=true
         command:
         - couchbase-admission-controller
-        image: ghcr.io/cb-vanilla/admission-controller:2.5.0-133
+        image: ghcr.io/cb-rhcc/admission-controller:2.5.0-134
         imagePullPolicy: IfNotPresent
         name: couchbase-operator-admission
         ports:
@@ -397,7 +397,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        image: ghcr.io/cb-vanilla/operator:2.5.0-133
+        image: ghcr.io/cb-rhcc/operator:2.5.0-134
         imagePullPolicy: IfNotPresent
         name: couchbase-operator
         ports:

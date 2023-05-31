@@ -1778,11 +1778,11 @@ spec:
                         type: object
                     type: object
                   autoFailoverMaxCount:
-                    default: 3
+                    default: 1
                     description: AutoFailoverMaxCount is the maximum number of automatic
                       failovers Couchbase server will allow before not allowing any
                       more.  This field must be between 1-3 for server versions prior
-                      to 7.1.0 default is 3.
+                      to 7.1.0 default is 1.
                     format: int64
                     minimum: 1
                     type: integer
@@ -2717,6 +2717,32 @@ spec:
                       type: string
                     type: array
                     x-kubernetes-list-type: set
+                  cloudNativeGateway:
+                    description: CloudNativeGateway is used to provision a gRPC gateway
+                      proxying a Couchbase cluster.
+                    properties:
+                      image:
+                        description: 'Image is the Cloud Native Gateway image to be
+                          used to run the sidecar container. No validation is carried
+                          out as this can be any arbitrary repo and tag. TODO: provide
+                          a default kubebuilder default image tag as field is mandatory.'
+                        type: string
+                      tls:
+                        description: TLS defines the TLS configuration for the Cloud
+                          Native Gateway server including server and client certificate
+                          configuration, and TLS security policies.
+                        properties:
+                          serverSecretName:
+                            description: ServerSecretName specifies the secret name,
+                              in the same namespace as the cluster, that contains
+                              Cloud Native Gateway gRPC server TLS data. The secret
+                              is expected to contain "tls.crt" and "tls.key" as per
+                              the kubernetes.io/tls secret type.
+                            type: string
+                        type: object
+                    required:
+                    - image
+                    type: object
                   disableUIOverHTTP:
                     description: DisableUIOverHTTP is used to explicitly enable and
                       disable UI access over the HTTP protocol.  If not specified,
@@ -2739,24 +2765,6 @@ spec:
                           controller to replicate load balancer service IP addresses
                           into a public DNS server.
                         type: string
-                    type: object
-                  endpointProxy:
-                    description: EndpointProxy is used to provision a gRPC gateway
-                      in front of the Couchbase cluster.
-                    properties:
-                      enabled:
-                        description: Enabled is a boolean that enables/disables the
-                          grpc gateway sidecar container. This must be set to true,
-                          when image is provided.
-                        type: boolean
-                      image:
-                        description: Image is the grpc gateway image to be used to
-                          run the sidecar container. No validation is carried out
-                          as this can be any arbitrary repo and tag. enabled must
-                          be set to true, when image is provided.
-                        type: string
-                    required:
-                    - image
                     type: object
                   exposeAdminConsole:
                     description: ExposeAdminConsole creates a service referencing

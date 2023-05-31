@@ -23,9 +23,9 @@ spec:
         matchLabels:
           cluster: appdemo-cluster
   networking:
-    endpointProxy:
+    cloudNativeGateway:
       enabled: True
-      image: ghcr.io/cb-rhcc/cloud-native-gateway:latest
+      image: ghcr.io/cb-rhcc/cloud-native-gateway:0.1.0-130
       tls:
         serverSecretName: couchbase-server-tls
     tls:

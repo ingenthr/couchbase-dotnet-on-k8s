@@ -11,10 +11,10 @@ Before we get started, a side note to the unitiatied-- OpenShift uses a command 
 1. Get an OpenShift Cluster. If you don't have 7 computers laying around and access to RH Downloads, you can use [ROSA](https://access.redhat.com/documentation/en-us/red_hat_openshift_service_on_aws). This takes about 2 hours to go through the first time if you follow the fast path, but subsequent starts only take 5-6 commands and 40 minutes or so.
 2. Create a secret with your Github Personal Access token, see below. You will need this in order to access the private repositories.
 3. Create TLS secrets needed for the cluster. This uses a passthrough Route, meaning the CouchbaseCluster will be configured with the TLS secrets that are used externally, so it will require a Subject Alternate Name that matches the domain name.
-4. Create the secret for appdemo `oc apply -f appdemo-secret.yaml`, `oc apply -f cb-appdemo-admin-secret.yaml`, `oc apply ghcr-login-secret.yaml` (which you created from step 3), from the k8s/kube-deployment directory. Then deploy the TLS certs (which you created from step 2) with `oc apply -f couchbase-server-ca.yaml`, `oc apply -f couchbase-server-tls.yaml`.
+4. Create the secret for appdemo `oc apply -f appdemo-secret.yaml`, `oc apply -f cb-appdemo-admin-secret.yaml`, `oc apply -f ghcr-login-secret.yaml` (which you created from step 3), from the k8s/kube-deployment directory. Then deploy the TLS certs (which you created from step 2) with something like `oc apply -f couchbase-server-ca.yaml`, `oc apply -f couchbase-server-tls.yaml`.
 5. Deploy Couchbase Operator/DAC. From the k8s/kube-deployment directory… `oc apply -f couchbase-crd.yaml` then the same for the secrets, then the same for the `cb-operator-dac-deployment.yaml`
 6. Deploy Couchbase Server: `oc apply -f cb-cluster-buckets-users.yaml`. Wait a while.
-7. Create a Route for the service from the CNGateway sidecar: `oc create route passthrough --service cb-appdemo-endpoint-proxy-service`
+7. Create a Route for the service from the CNGateway sidecar: `oc create route passthrough --service cb-appdemo-endpoint-proxy-service`; then get your endpoint host/port through `oc get routes`.  Note that if you get an error about a port value "exposing a non-existent service", you did not wait long enough.
 
 You can check for status with `oc get pods` and you'll eventually see something like this with everything "READY":
 
@@ -42,7 +42,7 @@ Do note that the above steps require a little bit of time between each one. Prob
 Add a certificate. This command aligns to the Operator documentation tutorial around using easyrsa as your CA. Public CA would, of course, be different. Note that the last two arguments in the subject-alt-name _will be specific_ to your particular deployment. You may wish to create a route to a simple service first, any will do, to see what the domain will be.
 
 ```
-% easyrsa --subject-alt-name='DNS:*.cb-appdemo,DNS:*.cb-appdemo.default,DNS:*.cb-appdemo.default.svc,DNS:*.cb-appdemo.default.svc.cluster.local,DNS:cb-appdemo-srv,DNS:cb-appdemo-srv.default,DNS:cb-appdemo-srv.default.svc,DNS:*.cb-appdemo-srv.default.svc.cluster.local,DNS:localhost,DNS:*.cngateway-demo.nw3z.p1.openshiftapps.com,DNS:*.apps.cngateway-demo.nw3z.p1.openshiftapps.com' build-server-full couchbase-server nopass
+% easyrsa --subject-alt-name='DNS:*.cb-appdemo,DNS:*.cb-appdemo.default,DNS:*.cb-appdemo.default.svc,DNS:*.cb-appdemo.default.svc.cluster.local,DNS:cb-appdemo-srv,DNS:cb-appdemo-srv.default,DNS:cb-appdemo-srv.default.svc,DNS:*.cb-appdemo-srv.default.svc.cluster.local,DNS:localhost,DNS:*.cngateway-demo.fg1b.p1.openshiftapps.com,DNS:*.apps.cngateway-demo.fg1b.p1.openshiftapps.com,DNS:cb-appdemo-endpoint-proxy-service-default.apps.cngateway-demo.fg1b.p1.openshiftapps.com' build-server-full cngateway-demo-fg1b nopass
 ```
 
 ## Verifying
@@ -88,6 +88,12 @@ _couchbase._tcp.cb-appdemo.default.svc.cluster.local    service = 0 33 11210 cb-
 
 To diagnose image pull issues…
 `kubectl describe pod <podname>`
+
+To see what the operator is doing if something seems 'stuck':
+`% oc logs deployment/couchbase-operator`
+… and add a -f to follow along and watch.
+
+
 
 ## TODO
 

@@ -4,7 +4,7 @@ metadata:
   name: cb-appdemo
 spec:
   image: ghcr.io/cb-rhcc/server:7.2.0-5298
-  cluster: 
+  cluster:
     autoCompaction:
       databaseFragmentationThreshold:
         percent: 99
@@ -26,9 +26,11 @@ spec:
     endpointProxy:
       enabled: True
       image: ghcr.io/cb-rhcc/cloud-native-gateway:latest
+      tls:
+        serverSecretName: couchbase-server-tls
     tls:
       rootCAs:
-      - couchbase-server-ca
+        - couchbase-server-ca
       secretSource:
         serverSecretName: couchbase-server-tls
   #   exposeAdminConsole: true
@@ -51,7 +53,7 @@ spec:
         - search
       pod:
         spec:
-            imagePullSecrets:
+          imagePullSecrets:
             - name: ghcr-login-secret
 ---
 apiVersion: couchbase.com/v2

@@ -43,23 +43,23 @@ Do note that the above steps require a little bit of time between each one. Prob
 Add a certificate. This command aligns to the Operator documentation tutorial around using easyrsa as your CA. Public CA would, of course, be different. Note that the last two arguments in the subject-alt-name _will be specific_ to your particular deployment. You may wish to create a route to a simple service first, any will do, to see what the domain will be.
 
 ```
-% easyrsa --subject-alt-name='DNS:*.cb-appdemo,DNS:*.cb-appdemo.default,DNS:*.cb-appdemo.default.svc,DNS:*.cb-appdemo.default.svc.cluster.local,DNS:cb-appdemo-srv,DNS:cb-appdemo-srv.default,DNS:cb-appdemo-srv.default.svc,DNS:*.cb-appdemo-srv.default.svc.cluster.local,DNS:localhost,DNS:*.cngateway-demo.2pkr.p1.openshiftapps.com,DNS:*.apps.cngateway-demo.2pkr.p1.openshiftapps.com,DNS:cb-appdemo-endpoint-proxy-service-default.apps.cngateway-demo.2pkr.p1.openshiftapps.com' build-server-full cngateway-demo-2pkr nopass
+% easyrsa --subject-alt-name='DNS:*.cb-appdemo,DNS:*.cb-appdemo.default,DNS:*.cb-appdemo.default.svc,DNS:*.cb-appdemo.default.svc.cluster.local,DNS:cb-appdemo-srv,DNS:cb-appdemo-srv.default,DNS:cb-appdemo-srv.default.svc,DNS:*.cb-appdemo-srv.default.svc.cluster.local,DNS:localhost,DNS:*.apps.cngateway-demo.fg1b.p1.openshiftapps.com,DNS:cb-appdemo-cloud-native-gateway-service-default.apps.cngateway-demo.fg1b.p1.openshiftapps.com' build-server-full cb-appdemo-cloud-native-gateway-service nopass
 ```
 
 ## Verifying
 
 As a quick test, forward a port:
-`kubectl port-forward service/cb-appdemo-endpoint-proxy-service 8080:80`
+`kubectl port-forward service/cb-appdemo-endpoint-proxy-service 8443:443`
 
 Then call it with `grpcurl` against a default Health/Check once you have the definition.
 
 To get the definition: `curl -o health.proto https://raw.githubusercontent.com/grpc/grpc-proto/master/grpc/health/v1/health.proto`
 
 Then invoke with:
-`grpcurl -plaintext -proto health.proto -d '{ "service": "hello" }' localhost:8080 grpc.health.v1.Health/Check`
+`grpcurl --insecure -proto health.proto -d '{ "service": "hello" }' localhost:8443 grpc.health.v1.Health/Check`
 
 ```
-% grpcurl -plaintext -proto health.proto -d '{ "service": "hello" }' localhost:8080 grpc.health.v1.Health/Check
+% grpcurl --insecure -proto health.proto -d '{ "service": "hello" }' localhost:8443 grpc.health.v1.Health/Check
 {
   "status": "SERVING"
 }
@@ -95,13 +95,17 @@ To see what the operator is doing if something seems 'stuck':
 … and add a -f to follow along and watch.
 
 
-To diagnose what cert is presented by the endpoint:
-`% openssl s_client -servername cb-appdemo-endpoint-proxy-service-default.apps.cngateway-demo.nw3z.p1.openshiftapps.com -showcerts -connect cb-appdemo-endpoint-proxy-service-default.apps.cngateway-demo.fg1b.p1.openshiftapps.com:443 </dev/null | openssl x509 -noout -text`
+To diagnose what cert is presented by the endpoint (assuming port forward):
+```
+% openssl s_client -showcerts \
+-servername cb-appdemo-cloud-native-gateway-service-default.apps.cngateway-demo.fg1b.p1.openshiftapps.com \
+-connect    localhost:8443 \
+ </dev/null | openssl x509 -noout -text
+```
 
-
+If the route doesn't work for some reason (see the openssl troubleshooting as a way to verify), it may work after deleting it and recreating it without the port argument.  I've had that happen at least once.
 ## TODO
 
-- Regenerate with image pull secrets as an argument to `cao generate`. Should put it in a better place.
 
 Issue related
 https://github.com/MichaCo/DnsClient.NET/issues/4#issuecomment-819805640

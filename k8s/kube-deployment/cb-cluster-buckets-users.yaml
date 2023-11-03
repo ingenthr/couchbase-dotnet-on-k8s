@@ -3,7 +3,7 @@ kind: CouchbaseCluster
 metadata:
   name: cb-appdemo
 spec:
-  image: ghcr.io/cb-rhcc/server:7.2.0-5298
+  image: registry.connect.redhat.com/couchbase/server:7.2.2-1-amd64
   cluster:
     autoCompaction:
       databaseFragmentationThreshold:
@@ -25,14 +25,14 @@ spec:
   networking:
     cloudNativeGateway:
       enabled: True
-      image: ghcr.io/cb-rhcc/cloud-native-gateway:0.1.0-130
+      image: registry.connect.redhat.com/couchbase/cloud-native-gateway:0.1.0-1-amd64
       tls:
-        serverSecretName: couchbase-server-tls
+        serverSecretName: appdemo-route
     tls:
       rootCAs:
         - couchbase-server-ca
       secretSource:
-        serverSecretName: couchbase-server-tls
+        serverSecretName: appdemo-route
   #   exposeAdminConsole: true
   #   adminConsoleServices:
   #     - data

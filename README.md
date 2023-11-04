@@ -10,7 +10,7 @@ Before we get started, a side note to the unitiatied-- OpenShift uses a command 
 
 1. Get an OpenShift Cluster. If you don't have 7 computers laying around and access to RH Downloads, you can use [ROSA](https://access.redhat.com/documentation/en-us/red_hat_openshift_service_on_aws). This takes about 2 hours to go through the first time if you follow the fast path, but subsequent starts only take 5-6 commands and 40 minutes or so.
 2. Create a secret with your Github Personal Access token, see below. You will need this in order to access the private repositories.
-3. Create a Route.  Technically, it won't work at all yet, but you will need to know the hostname (derived from ROSA) in order to add the subject-alternate-names to the TLS secrets.  This can be done with ` % oc create route passthrough --service cb-appdemo-cloud-native-gateway-service --port 443` and then get the route name from the output in `oc get routes`.
+3. Create a Route.  Technically, it won't work at all yet, but you will need to know the hostname (derived from ROSA) in order to add the subject-alternate-names to the TLS secrets.  This can be done with ` % oc create route passthrough --service cb-appdemo-cloud-native-gateway-service` and then get the route name from the output in `oc get routes`.
 4. Create TLS secrets needed for the cluster. This uses a passthrough Route, meaning the CouchbaseCluster will be configured with the TLS secrets that are used externally, so it will require a Subject Alternate Name that matches the domain name.  Follow the tutorial if you want to do this with your own CA via easyrsa.  A sample invocation of easrsa with the SANs is below.
 5. Create the secret for appdemo `oc apply -f appdemo-secret.yaml`, `oc apply -f cb-appdemo-admin-secret.yaml`, `oc apply -f ghcr-login-secret.yaml` (which you created from step 3), from the k8s/kube-deployment directory. Then deploy the TLS certs (which you created from step 2) with something like `oc apply -f couchbase-server-ca.yaml`, `oc apply -f couchbase-server-tls.yaml`.
 6. Deploy Couchbase Operator/DAC. From the k8s/kube-deployment directory… `oc apply -f couchbase-crd.yaml` then the same for the secrets, then the same for the `cb-operator-dac-deployment.yaml`
@@ -106,6 +106,7 @@ To diagnose what cert is presented by the endpoint (assuming port forward):
 If the route doesn't work for some reason (see the openssl troubleshooting as a way to verify), it may work after deleting it and recreating it without the port argument.  I've had that happen at least once.
 ## TODO
 
+* Verify route creation ahead of time can work.  It used to work with --port 443 but in the last demo I had an issue with that and had to recreate it after the service was up without a port argument.
 
 Issue related
 https://github.com/MichaCo/DnsClient.NET/issues/4#issuecomment-819805640

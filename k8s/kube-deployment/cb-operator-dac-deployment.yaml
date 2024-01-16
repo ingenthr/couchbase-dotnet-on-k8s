@@ -104,7 +104,7 @@ spec:
         - -validate-storage-classes=true
         command:
         - couchbase-admission-controller
-        image: couchbase/admission-controller:2.5.0
+        image: ghcr.io/cb-vanilla/admission-controller:2.6.1-106
         imagePullPolicy: IfNotPresent
         name: couchbase-operator-admission
         ports:
@@ -120,8 +120,6 @@ spec:
         - mountPath: /var/run/secrets/couchbase.com/couchbase-operator-admission
           name: couchbase-operator-admission
           readOnly: true
-      imagePullSecrets:
-        - name: ghcr-login-secret
       securityContext:
         runAsNonRoot: true
       serviceAccountName: couchbase-operator-admission
@@ -129,6 +127,8 @@ spec:
       - name: couchbase-operator-admission
         secret:
           secretName: couchbase-operator-admission
+      imagePullSecrets:
+        - name: ghcr-login-secret
 ---
 apiVersion: v1
 kind: Service
@@ -397,7 +397,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        image: couchbase/operator:2.5.0
+        image: ghcr.io/cb-vanilla/operator:2.6.1-106
         imagePullPolicy: IfNotPresent
         name: couchbase-operator
         ports:
@@ -411,11 +411,11 @@ spec:
             port: http
             scheme: HTTP
         resources: {}
-      imagePullSecrets:
-        - name: ghcr-login-secret
       securityContext:
         runAsNonRoot: true
       serviceAccountName: couchbase-operator
+      imagePullSecrets:
+        - name: ghcr-login-secret
 ---
 apiVersion: v1
 kind: Service

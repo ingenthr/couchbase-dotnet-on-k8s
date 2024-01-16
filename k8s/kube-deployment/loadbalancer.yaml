@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cb-appdemo-cng-service-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: cb-appdemo-cloud-native-gateway-service
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 18098
